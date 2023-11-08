@@ -1,8 +1,9 @@
 import express from "express";
 import dotenv from 'dotenv';
-import databaseService from "./services/database.service";
 
 dotenv.config();
+
+import databaseService from "./services/database.service";
 
 class Config {
     readonly PORT = Number(process.env.PORT) || 3000;
