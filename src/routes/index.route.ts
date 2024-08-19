@@ -2,6 +2,18 @@ import { Router } from 'express';
 import { Photo } from '../models/photo.model';
 import multer from 'multer';
 
+
+const fileStorageEngine = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, './src/files');
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '--' + file.originalname);
+    }
+})
+
+const upload = multer({storage: fileStorageEngine});
+
 const router = Router();
 
 router.get('/', async (req, res, next) => {
@@ -9,7 +21,7 @@ router.get('/', async (req, res, next) => {
         const photos = await Photo.find();
     
         /** @TODO Render Existing Photos in index.ejs */
-        res.render('index', { photos });
+        res.render('index', { images: photos });
     } catch (err) {
         console.error(err);
         next(err)
@@ -19,10 +31,11 @@ router.get('/', async (req, res, next) => {
 router.post(
     '/',
     /** @TODO Add multer middleware */
+    upload.single('image'),
     async (req, res, next) => {
         try {
-
-            /** @TODO Save Photo in database */
+            const photo = new Photo({path: req.file?.filename, title: req.body.title});
+            await photo.save();
             res.redirect('/');
 
         } catch (err) {
